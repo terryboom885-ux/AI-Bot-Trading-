@@ -1,0 +1,36 @@
+# main.py
+import pandas as pd
+from config import CONFIG
+from data_loader import load_assets
+from features_engineering import create_features
+from ai_model import train_model
+from backtest import simulate_trading
+
+def main():
+    print("Loading data for assets:", CONFIG['assets'])
+    raw_data = load_assets(CONFIG['assets'], start=CONFIG['data_start'], end=CONFIG['data_end'])
+
+    all_results = {}
+    for asset, df_raw in raw_data.items():
+        print("\n---", asset, "---")
+        try:
+            df = create_features(df_raw)
+            model = train_model(df)
+            trades, final_capital = simulate_trading(df, model, CONFIG)
+            print(f"Final capital for {asset}: ${final_capital:.2f} (start ${CONFIG['initial_capital']:.2f})")
+            if not trades.empty:
+                print("Last trades:")
+                print(trades.tail(10))
+            else:
+                print("No trades executed for this asset.")
+            all_results[asset] = {"trades": trades, "final_capital": final_capital}
+        except Exception as e:
+            print(f"Error for {asset}: {e}")
+
+    # simple report
+    print("\n=== Summary ===")
+    for a, r in all_results.items():
+        print(a, "final_capital:", r["final_capital"], "trades:", len(r["trades"]))
+
+if __name__ == "__main__":
+    main()
