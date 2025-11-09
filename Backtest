@@ -1,0 +1,53 @@
+# backtest.py
+import pandas as pd
+from strategy import generate_signal_from_model
+from risk_management import position_size, sl_tp_prices
+
+def simulate_trading(df, model, config):
+    capital = config["initial_capital"]
+    trades = []
+    position = 0
+    entry_price = None
+    stop_price = None
+    take_price = None
+    shares = 0
+
+    lookback = config['lookback_window']
+
+    for i in range(lookback, len(df)-1):
+        # use data up to i (inclusive) to generate signal for this bar
+        df_slice = df.iloc[:i+1]
+        price_open = df['Open'].iloc[i+1]   # next bar open used as execution price (simpler)
+        signal, prob = generate_signal_from_model(df_slice, model, config['min_confidence'])
+
+        # open new long position
+        if signal == "BUY" and position == 0:
+            entry_price = price_open
+            stop_price, take_price = sl_tp_prices(entry_price, config['stop_loss_pct'], config['take_profit_pct'])
+            shares = position_size(capital, config['risk_per_trade'], entry_price, stop_price)
+            if shares <= 0:
+                continue
+            position = 1
+            trades.append({"Date": df.index[i+1], "Action": "BUY", "Price": entry_price, "Shares": shares, "Prob": prob, "CapitalBefore": capital})
+
+        # if position is open, check for TP/SL intrabar using High/Low of next bar
+        if position == 1:
+            high = df['High'].iloc[i+1]
+            low  = df['Low'].iloc[i+1]
+            # take profit first if both hit same bar assume TP executed
+            if high >= take_price:
+                profit = (take_price - entry_price) * shares
+                capital += profit
+                trades.append({"Date": df.index[i+1], "Action": "TP", "Price": take_price, "Shares": shares, "Profit": profit, "CapitalAfter": capital})
+                position = 0
+                shares = 0
+            elif low <= stop_price:
+                loss = (entry_price - stop_price) * shares
+                capital -= loss
+                trades.append({"Date": df.index[i+1], "Action": "SL", "Price": stop_price, "Shares": shares, "Loss": -loss, "CapitalAfter": capital})
+                position = 0
+                shares = 0
+            # else hold until next bar
+
+    trades_df = pd.DataFrame(trades)
+    return trades_df, capital
