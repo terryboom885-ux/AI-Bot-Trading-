@@ -1,0 +1,12 @@
+Run once with a single ticker (e.g., just ["SPY"]) to speed up debugging.
+	2.	Check model accuracy printed from ai_model.train_model. If test accuracy is near 0.5, the model isn’t learning — consider:
+	•	adding more features,
+	•	increasing data length,
+	•	changing model hyperparameters.
+	3.	Examine trades DataFrame (printed) — look at entries, TP/SL hits, P/L.
+	4.	Change hyperparameters:
+	•	CONFIG["min_confidence"] lower from 0.7 to 0.6 to get more trades.
+	•	adjust stop_loss_pct / take_profit_pct values for different risk/reward.
+	5.	Backtest length: expand data_start to earlier year to give more training data.
+	6.	Paper-trade live: once satisfied, you can modify code to process new live bars in real time (but still simulated) by repeatedly fetching latest candle(s) and calling generate_signal_from_model.
+	7.	Use walk-forward testing: re-train the model on rolling windows and test forward to reduce look-ahead bias.
