@@ -1,0 +1,6 @@
+Add more features (volume-based, order-book proxies for crypto, volatility indicators).
+	•	Swap XGBoost for an LSTM (requires building sliding windows and using tensorflow/keras).
+	•	Implement walk-forward retraining: retrain model periodically on rolling window.
+	•	Implement ensemble (average multiple models’ probabilities).
+	•	Add logging to CSV and periodic retraining scheduler.
+	•	Add a “paper-trade server” mode to ingest real-time tick/1m bars and simulate continuously.
