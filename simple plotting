@@ -1,0 +1,22 @@
+import matplotlib.pyplot as plt
+
+for asset, res in all_results.items():
+    trades = res['trades']
+    if trades.empty:
+        continue
+    # build equity curve from trades
+    equity = []
+    cap = CONFIG['initial_capital']
+    dates = []
+    for idx, row in trades.iterrows():
+        dates.append(row['Date'])
+        if row['Action'] == 'TP':
+            cap += row.get('Profit', 0)
+        elif row['Action'] == 'SL':
+            cap += row.get('Profit', 0)  # negative stored as Profit or Loss
+        equity.append(cap)
+    plt.plot(dates, equity, label=asset)
+
+plt.legend()
+plt.title('Equity curves from simulated trades')
+plt.show()
