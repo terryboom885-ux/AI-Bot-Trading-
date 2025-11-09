@@ -1,0 +1,29 @@
+# ai_model.py
+import numpy as np
+from sklearn.model_selection import train_test_split
+from xgboost import XGBClassifier
+from sklearn.metrics import accuracy_score
+
+FEATURE_COLS = ['returns','SMA_10','SMA_50','MACD','RSI']
+
+def prepare_xy(df):
+    X = df[FEATURE_COLS].values
+    # target = 1 if next-day close > current close
+    y = (df['Close'].shift(-1) > df['Close']).astype(int).fillna(0).values
+    return X[:-1], y[:-1]  # drop last row (no next-day for target)
+
+def train_model(df):
+    X, y = prepare_xy(df)
+    if len(y) < 50:
+        raise ValueError("Not enough rows to train model")
+
+    split = int(len(X) * 0.8)
+    X_train, X_test = X[:split], X[split:]
+    y_train, y_test = y[:split], y[split:]
+
+    model = XGBClassifier(n_estimators=150, learning_rate=0.05, max_depth=3, use_label_encoder=False, eval_metric='logloss')
+    model.fit(X_train, y_train)
+    preds = model.predict(X_test)
+    acc = accuracy_score(y_test, preds)
+    print(f"Trained XGBoost accuracy on test set: {acc:.3f}")
+    return model
