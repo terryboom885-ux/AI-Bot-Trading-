@@ -1,0 +1,10 @@
+ai_trading_bot/
+├── config.py
+├── requirements.txt
+├── data_loader.py
+├── features_engineering.py
+├── ai_model.py
+├── strategy.py
+├── risk_management.py
+├── backtest.py
+└── main.py
