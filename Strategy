@@ -1,0 +1,24 @@
+# strategy.py
+import numpy as np
+
+MIN_CONFIDENCE = 0.7
+
+def generate_signal_from_model(df_slice, model, min_conf=MIN_CONFIDENCE):
+    """
+    df_slice: dataframe up to the time index we are evaluating (includes last row = current)
+    model: trained classifier with predict_proba
+    Returns: ("BUY"/"SELL"/"HOLD", probability_up)
+    """
+    from ai_model import FEATURE_COLS
+    row = df_slice.iloc[-1]
+    X = row[FEATURE_COLS].values.reshape(1, -1)
+    prob_up = model.predict_proba(X)[0][1]
+    # basic hybrid: require both model confidence AND trend condition (SMA)
+    sma_short = row['SMA_10']
+    sma_long = row['SMA_50']
+    if prob_up >= min_conf and sma_short > sma_long:
+        return "BUY", float(prob_up)
+    elif prob_up <= (1 - min_conf) and sma_short < sma_long:
+        return "SELL", float(prob_up)
+    else:
+        return "HOLD", float(prob_up)
