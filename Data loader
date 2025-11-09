@@ -1,0 +1,15 @@
+# data_loader.py
+import yfinance as yf
+import pandas as pd
+
+def get_data(ticker, start=None, end=None):
+    df = yf.download(ticker, start=start, end=end, progress=False)
+    df = df[['Open','High','Low','Close','Volume']].dropna()
+    return df
+
+def load_assets(tickers, start=None, end=None):
+    data = {}
+    for t in tickers:
+        print(f"Downloading {t}...")
+        data[t] = get_data(t, start=start, end=end)
+    return data
