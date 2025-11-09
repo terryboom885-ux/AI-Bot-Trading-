@@ -1,0 +1,24 @@
+# risk_management.py
+import math
+
+def position_size(capital, risk_per_trade, entry_price, stop_loss_price):
+    """
+    capital: current capital (float)
+    risk_per_trade: fraction of capital to risk (e.g., 0.02)
+    entry_price: price at entry
+    stop_loss_price: price at which trade will be closed (lower for long)
+    returns number of shares to buy (int)
+    """
+    # risk per share in dollars:
+    risk_per_share = abs(entry_price - stop_loss_price)
+    if risk_per_share <= 0:
+        return 0
+    money_at_risk = capital * risk_per_trade
+    raw_shares = money_at_risk / risk_per_share
+    shares = max(0, math.floor(raw_shares))
+    return shares
+
+def sl_tp_prices(entry_price, stop_loss_pct, take_profit_pct):
+    stop_price = entry_price * (1 - stop_loss_pct)
+    take_price = entry_price * (1 + take_profit_pct)
+    return stop_price, take_price
