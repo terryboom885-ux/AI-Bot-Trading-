@@ -1,0 +1,4 @@
+ModuleNotFoundError: ensure virtualenv activated and pip install -r requirements.txt done.
+	•	ValueError: Not enough rows to train model: use larger data range in config.py (data_start earlier).
+	•	yfinance download blank / network problems: check internet and ticker symbol spelling.
+	•	XGBoost install error on Windows: ensure you have a recent pip and wheel; if issues, search for XGBoost install guidance or use conda.
