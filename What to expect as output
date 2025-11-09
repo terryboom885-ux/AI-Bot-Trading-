@@ -1,0 +1,5 @@
+Downloading AAPL...
+Trained XGBoost accuracy on test set: 0.61
+Final capital for AAPL: $10,246.00 (start $10000.00)
+Last trades:
+... (table of buys / TP / SL)
